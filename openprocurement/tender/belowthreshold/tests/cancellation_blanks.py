@@ -117,6 +117,7 @@ def create_tender_cancellation(self):
     cancellation = response.json['data']
     self.assertEqual(cancellation['reason'], 'cancellation reason')
     self.assertEqual(cancellation['status'], 'active')
+    self.assertEqual(cancellation['tenderStatus'], 'active.tendering')
     self.assertIn('id', cancellation)
     self.assertIn(cancellation['id'], response.headers['Location'])
 
@@ -137,11 +138,13 @@ def patch_tender_cancellation(self):
     self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
     cancellation = response.json['data']
+    self.assertNotIn('tenderStatus', cancellation)
 
     response = self.app.patch_json('/tenders/{}/cancellations/{}?acc_token={}'.format(self.tender_id, cancellation['id'], self.tender_token), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']["status"], "active")
+    self.assertEqual(response.json['data']['tenderStatus'], 'active.tendering')
 
     response = self.app.get('/tenders/{}'.format(self.tender_id))
     self.assertEqual(response.status, '200 OK')
@@ -350,6 +353,7 @@ def create_tender_lots_cancellation(self):
     cancellation = response.json['data']
     self.assertEqual(cancellation['reason'], 'cancellation reason')
     self.assertEqual(cancellation['status'], 'active')
+    self.assertEqual(cancellation['tenderStatus'], 'active.tendering')
     self.assertIn('id', cancellation)
     self.assertIn(cancellation['id'], response.headers['Location'])
 
@@ -407,6 +411,7 @@ def patch_tender_lots_cancellation(self):
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']["status"], "active")
+    self.assertEqual(response.json['data']['tenderStatus'], 'active.tendering')
 
     response = self.app.get('/tenders/{}'.format(self.tender_id))
     self.assertEqual(response.status, '200 OK')
